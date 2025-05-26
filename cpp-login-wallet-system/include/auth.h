@@ -2,17 +2,23 @@
 #define AUTH_H
 
 #include <string>
+#include "user.h"
 
 class Auth {
 public:
     static bool registerUser();
     static bool loginUser();
+    static bool activateAccount();
+    static bool changePassword();
+
+private:
+    static bool userExists(const std::string& username);
+    static std::string hashPassword(const std::string& password);
+    static std::string generateOTP();
+    static bool verifyOTP(const std::string& otp);
+
+    static void saveUserData(const std::string& username, const std::string& hashedPassword, const UserInfo& info);
+    static bool loadUserData(const std::string& username, std::string& hashedPassword, UserInfo& info);
 };
 
-// Hàm kiểm tra sự tồn tại của tài khoản
-bool userExists(const std::string& username);
-
-// Hàm băm mật khẩu đơn giản
-std::string hashPassword(const std::string& password);
-
-#endif
+#endif // AUTH_H
