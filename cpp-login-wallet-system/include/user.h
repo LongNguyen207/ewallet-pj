@@ -9,9 +9,11 @@ enum class Role {
 };
 
 struct UserInfo {
+    std::string username;    // username cố định
     std::string fullName;
     std::string email;
     Role role;
+    bool isActive;
 };
 
 #endif // USER_H
