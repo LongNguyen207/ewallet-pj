@@ -15,8 +15,8 @@ Dự án này là một hệ thống quản lý ví điện tử đơn giản, �
 | Tên thành viên       | Công việc được giao                          |
 |----------------------|----------------------------------------------|
 | Nguyễn Phi Long   |  Quản lý tài khoản & đăng ký - đăng nhập |
-| Nguyễn Khắc Hoàng Anh    | Quản lý mật khẩu và bảo mật |
-| Nguyễn Xuân Biên       |  Quản lý người dùng                            |
+| Nguyễn Xuân Biên    | Quản lý mật khẩu và bảo mật |
+| Nguyễn Khắc Hoàng Anh       |  Quản lý người dùng                            |
 | Kiều Duy Sơn       |  Quản lý ví điểm & giao dịch chuyển điểm           |
 
 
