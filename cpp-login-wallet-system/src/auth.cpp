@@ -1,16 +1,15 @@
-#include "../include/Auth.h"
 #include <iostream>
 #include <fstream>
 #include <ctime>
 #include <cstdlib>
+#include "../include/Auth.h"
+#include <filesystem>
 
-// Kiểm tra tồn tại user
 bool Auth::userExists(const std::string& username) {
     std::ifstream file("data/users/" + username + ".txt");
     return file.good();
 }
 
-// Băm mật khẩu đơn giản
 std::string Auth::hashPassword(const std::string& password) {
     std::string hashed = password;
     for (char& c : hashed) {
@@ -19,7 +18,6 @@ std::string Auth::hashPassword(const std::string& password) {
     return hashed;
 }
 
-// Sinh OTP 6 chữ số
 std::string Auth::generateOTP() {
     srand(static_cast<unsigned int>(time(nullptr)));
     std::string otp = "";
@@ -29,7 +27,6 @@ std::string Auth::generateOTP() {
     return otp;
 }
 
-// Xác thực OTP
 bool Auth::verifyOTP(const std::string& otp) {
     std::string inputOTP;
     std::cout << "Nhap OTP: ";
@@ -37,7 +34,6 @@ bool Auth::verifyOTP(const std::string& otp) {
     return inputOTP == otp;
 }
 
-// Lưu dữ liệu user vào file
 void Auth::saveUserData(const std::string& username, const std::string& hashedPassword, const UserInfo& info) {
     std::ofstream file("data/users/" + username + ".txt");
     if (file.is_open()) {
@@ -50,7 +46,6 @@ void Auth::saveUserData(const std::string& username, const std::string& hashedPa
     }
 }
 
-// Đọc dữ liệu user từ file
 bool Auth::loadUserData(const std::string& username, std::string& hashedPassword, UserInfo& info) {
     std::ifstream file("data/users/" + username + ".txt");
     if (!file.is_open()) return false;
@@ -66,13 +61,11 @@ bool Auth::loadUserData(const std::string& username, std::string& hashedPassword
 
     info.role = static_cast<Role>(roleInt);
     info.isActive = (activeInt == 1);
-
     info.username = username;
 
     return true;
 }
 
-// Đăng ký user mới (isActive = false)
 bool Auth::registerUser() {
     std::string username, password, fullName, email;
 
@@ -110,13 +103,21 @@ bool Auth::registerUser() {
 
     newUser.isActive = true;
 
+    // Tạo thư mục cần thiết nếu chưa có
+std::filesystem::create_directories("data/users");
+std::filesystem::create_directories("data/wallets");
+std::filesystem::create_directories("data/history");
+
     saveUserData(username, hashPassword(password), newUser);
+
+    std::ofstream wallet("data/wallets/" + username + ".txt");
+    wallet << 1000;
+    wallet.close();
 
     std::cout << "Dang ky thanh cong va tai khoan da kich hoat.\n";
     return true;
 }
 
-// Kích hoạt tài khoản (trường hợp chưa kích hoạt)
 bool Auth::activateAccount() {
     std::string username;
     std::cout << "Nhap username: ";
@@ -152,7 +153,6 @@ bool Auth::activateAccount() {
     return true;
 }
 
-// Đăng nhập
 bool Auth::loginUser() {
     std::string username, password;
 
@@ -182,14 +182,12 @@ bool Auth::loginUser() {
     if (hashPassword(password) == storedHashedPassword) {
         std::cout << "Dang nhap thanh cong!\n";
         return true;
-    }
-    else {
+    } else {
         std::cout << "Mat khau sai!\n";
         return false;
     }
 }
 
-// Đổi mật khẩu (cần OTP)
 bool Auth::changePassword() {
     std::string username;
     std::cout << "Nhap username: ";
@@ -219,7 +217,93 @@ bool Auth::changePassword() {
     std::cin >> newPassword;
 
     saveUserData(username, hashPassword(newPassword), info);
-
     std::cout << "Doi mat khau thanh cong.\n";
     return true;
+}
+
+bool Auth::transferPoints(const std::string& fromUser) {
+    std::string toUser;
+    int amount;
+
+    std::cout << "Nhap ten nguoi nhan: ";
+    std::cin >> toUser;
+    std::cout << "Nhap so diem muon chuyen: ";
+    std::cin >> amount;
+
+    if (!userExists(toUser)) {
+        std::cout << "Nguoi nhan khong ton tai.\n";
+        return false;
+    }
+
+    std::string fromPath = "data/wallets/" + fromUser + ".txt";
+    std::string toPath = "data/wallets/" + toUser + ".txt";
+
+    int fromBalance = 0, toBalance = 0;
+    std::ifstream finFrom(fromPath);
+    if (finFrom.is_open()) {
+        finFrom >> fromBalance;
+        finFrom.close();
+    }
+
+    if (fromBalance < amount) {
+        std::cout << "So du khong du.\n";
+        return false;
+    }
+
+    std::ifstream finTo(toPath);
+    if (finTo.is_open()) {
+        finTo >> toBalance;
+        finTo.close();
+    }
+
+    fromBalance -= amount;
+    toBalance += amount;
+
+    std::ofstream foutFrom(fromPath);
+    foutFrom << fromBalance;
+    foutFrom.close();
+
+    std::ofstream foutTo(toPath);
+    foutTo << toBalance;
+    foutTo.close();
+
+    std::ofstream hFrom("data/history/" + fromUser + ".txt", std::ios::app);
+    std::ofstream hTo("data/history/" + toUser + ".txt", std::ios::app);
+    std::string timeStr = std::to_string(time(nullptr));
+
+    hFrom << "Chuyen " << amount << " diem cho " << toUser << " vao luc " << timeStr << "\n";
+    hTo << "Nhan " << amount << " diem tu " << fromUser << " vao luc " << timeStr << "\n";
+
+    hFrom.close();
+    hTo.close();
+
+    std::cout << "Chuyen thanh cong.\n";
+    return true;
+}
+
+void Auth::viewTransactionHistory(const std::string& username) {
+    std::ifstream file("data/history/" + username + ".txt");
+    if (!file.is_open()) {
+        std::cout << "Khong co lich su giao dich.\n";
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::cout << line << "\n";
+    }
+    file.close();
+}
+void Auth::viewBalance(const std::string& username) {
+    std::ifstream walletFile("data/wallets/" + username + ".txt");
+    if (!walletFile.is_open()) {
+        std::cout << "Khong tim thay vi cua ban.\n";
+        return;
+    }
+
+    int balance = 0;
+    walletFile >> balance;
+    walletFile.close();
+
+    std::cout << "So du hien tai cua ban la: " << balance << " diem.\n";
 }

@@ -10,6 +10,11 @@ public:
     static bool loginUser();
     static bool activateAccount();
     static bool changePassword();
+    //
+    static bool transferPoints(const std::string& fromUser);
+    static void viewTransactionHistory(const std::string& username);
+    static void viewBalance(const std::string& username);
+
 
 private:
     static bool userExists(const std::string& username);
