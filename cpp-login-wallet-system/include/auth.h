@@ -21,6 +21,9 @@ private:
     static std::string hashPassword(const std::string& password);
     static std::string generateOTP();
     static bool verifyOTP(const std::string& otp);
+    static std::string generateStrongPassword();
+    static UserInfo currentLoggedInUser;
+    
 
     static void saveUserData(const std::string& username, const std::string& hashedPassword, const UserInfo& info);
     static bool loadUserData(const std::string& username, std::string& hashedPassword, UserInfo& info);
