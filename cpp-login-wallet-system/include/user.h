@@ -1,0 +1,19 @@
+#ifndef USER_H
+#define USER_H
+
+#include <string>
+
+enum class Role {
+    User,
+    Admin
+};
+
+struct UserInfo {
+    std::string username;    // username cố định
+    std::string fullName;
+    std::string email;
+    Role role;
+    bool isActive;
+};
+
+#endif // USER_H
