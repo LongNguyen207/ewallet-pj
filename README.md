@@ -112,8 +112,8 @@ Mật khẩu tự sinh: Gồm ký tự đặc biệt, viết hoa, số; giúp t�
 ### Tải chương trình
 1. Clone từ GitHub (giả sử bọn mình dùng Git):
    ```bash
-   git clone https://github.com/username/electronic-wallet-system.git
-   cd electronic-wallet-system
+   git clone https://github.com/LongNguyen207/ewallet-pj/
+ 
 
 
 
