@@ -1,7 +1,9 @@
 #include <iostream>
 #include "../include/Auth.h"
+#include <ctime>
 
 int main() {
+    srand(static_cast<unsigned int>(time(nullptr)));
     std::string currentUser;
     bool loggedIn = false;
 
